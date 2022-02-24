@@ -19,6 +19,5 @@ for provider_name in os.listdir("./providers"):
 images = os.listdir("./small_input")
 
 for index, image in enumerate(images):
-    pass
-board = provider_creators["board"]()["image"]
-board.save("test.png")
+    board = provider_creators["board"]()["image"]
+    board.save(f"test{index}.png")

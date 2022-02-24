@@ -2,6 +2,8 @@ import json
 from fentoboardimage import fenToImage, loadPiecesFolder, loadArrows
 import random
 from random import randint, choice, randrange
+import chess.pgn
+
 PGN_LOCATION = "/common/home/rbk70/projects/DataMake/providers/board/lichess_db_standard_rated_2013-01.pgn"
 SETS = [
         "/common/home/rbk70/projects/DataMake/providers/board/pieces"
@@ -10,6 +12,8 @@ ARROW_SETS = ["/common/home/rbk70/projects/DataMake/providers/board/arrows1"]
 COLORS = [
     (("#ffffff","#333333"),("#E18B47","#F18B47")),
 ]
+
+pgn = open(PGN_LOCATION)
 
 def randomArrowCordinates():
 
@@ -25,7 +29,7 @@ def randomArrowCordinates():
     
     def addCords(cords1,cords2):
         return (cords1[0] + cords2[0], cords1[1] + cords2[1])
-    print("RUNNING")
+
     KNIGHTS = [
         (2,1),
         (2,-1),
@@ -80,8 +84,15 @@ def randomArrowCordinates():
 def create():
     size = randrange(200, 800)
     theme = choice(COLORS)
+    
+    game = chess.pgn.read_game(pgn)
+    board = game.board()
+    moves = list(game.mainline_moves())
+    target_move = randrange(0,len(moves))
+    for x in range(target_move):
+        board.push(moves[x])
     arrows = fenToImage(
-        fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        fen=board.fen(),
         squarelength=int(size / 8),
         pieceSet=loadPiecesFolder(choice(SETS)),
         darkColor=theme[0][1],
