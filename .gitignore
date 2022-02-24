@@ -1,2 +1,5 @@
 input
 output
+*.swp
+env
+__pycache__

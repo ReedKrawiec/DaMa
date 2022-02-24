@@ -16,9 +16,9 @@ for provider_name in os.listdir("./providers"):
     spec.loader.exec_module(provider)
     provider_creators[provider_name] = provider.create
 
-images = os.listdir("./input")
+images = os.listdir("./small_input")
 
 for index, image in enumerate(images):
     pass
-
-print(len(images))
+board = provider_creators["board"]()["image"]
+board.save("test.png")
