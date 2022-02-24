@@ -1,10 +1,18 @@
 [[package]]
 name = "fentoboardimage"
-version = "0.5"
-description = "Create PIL images from chess Fen strings"
+version = "0.5.2"
+description = "FenToBoardImage takes a Fen string representing a Chess position, and renders a PIL image of the resulting position."
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.7,<4.0"
+
+[package.dependencies]
+Pillow = ">=9.0.0,<10.0.0"
+
+[package.source]
+type = "legacy"
+url = "https://test.pypi.org/simple"
+reference = "testpypisimple"
 
 [[package]]
 name = "pillow"
@@ -17,11 +25,12 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "16a3db90ac0fa25d97a8d08fe783fc25f65bd9bfacb7e79843bab074b7796b3a"
+content-hash = "7de7392bd1049eb710ab858d9547112506dd87b3e6f76fef40cea71abbf11b6c"
 
 [metadata.files]
 fentoboardimage = [
-    {file = "fenToBoardImage-0.5-py3-none-any.whl", hash = "sha256:76d3383a43ccb2d6066164e93742cd957987d2981e0b30014b6fb87bef6b9ef4"},
+    {file = "fenToBoardImage-0.5.2-py3-none-any.whl", hash = "sha256:ca8b12c5c1fbce5fbb79a359fe937ec9d5bf31656e6aaee581e6234f8423f11b"},
+    {file = "fenToBoardImage-0.5.2.tar.gz", hash = "sha256:b57504cba074d979953a61da3d6abaef72c2e6b790fe81228a84a227128b2f0b"},
 ]
 pillow = [
     {file = "Pillow-9.0.1-1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:a5d24e1d674dd9d72c66ad3ea9131322819ff86250b30dc5821cbafcfa0b96b4"},
