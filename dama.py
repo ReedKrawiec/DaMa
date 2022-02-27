@@ -22,14 +22,32 @@ for provider_name in os.listdir("./providers"):
     spec.loader.exec_module(provider)
     provider_creators[provider_name] = provider.create
 
-images = os.listdir("./small_input")
+input_dir = config["input"]
+images = os.listdir(input_dir)
 #checks if two rectangles intersect with format (x,y,width, height)
 # x,y,width,height
 def squareIntersects(one,two):
+    x1,x2, = one[0] - one[2]/2, one[0] + one[2]/2
+    x3,x4 = two[0] - two[2]/2, two[0] + two[2]/2
+    y1,y2 = one[1] - one[3]/2, one[1] + one[3]/2
+    y3,y4 = two[1] - two[3]/2, two[1] + two[3]/2
+    if x1 > x3 and x1 < x4:
+        if y1 > y3 and y1 < y4:
+            return True
+        if y2 > y3 and y2 < y4:
+            return True
+        if y1 < y3 and y2 > y4:
+            return True
+    if x2 > x3 and x2 < x4:
+        if y1 > y3 and y1 < y4:
+            return True
+        if y2 > y3 and y2 < y4:
+            return True
+        if y1 < y3 and y2 > y4:
+            return True
     return False
 
 def generate(provider):
-    print("GENERATION")
     name = provider["name"]
     position = copy.deepcopy(provider["position"])
     element = provider_creators[name]()
@@ -41,16 +59,20 @@ def generate(provider):
         position["y"]["max"] = position["y"]["max"] - 1 * height
     return image, labels, width, height, position
 
+output = config["output"]
+distribution = list(output["distribution"].keys())
+current_group = 0
+percent = output["distribution"][distribution[current_group]]
+offsets = 0
 for index, image in enumerate(images):
     print("Working on: " + image)
-    screenshot = Image.open(f"./small_input/{image}")
+    screenshot = Image.open(f"{input_dir}/{image}")
     class_list = []
     full_labels = []
     placements = []
     for provider in config["providers"]:
         
         if random.random() < provider["probability"]:
-            print("random: " + str(random.random()) + " probability: " + str(provider["probability"]))
             for _ in range(provider["min"],provider["max"]):
                 image, labels, width, height, position = generate(provider)
                 counter = 0
@@ -67,7 +89,6 @@ for index, image in enumerate(images):
                         if counter > 100:
                             image, labels, width, height, position = generate(provider)
                         if counter > 200:
-                            print("emergency break")
                             break
                 placements.append((x,y,width,height))
                 # Adjust labels to take into account position within image
@@ -75,7 +96,6 @@ for index, image in enumerate(images):
                 full_labels.extend(labels)
                 screenshot.paste(image,(int(x),int(y)))
         class_list.extend(provider["classes"])
-    output = config["output"]
     output_image = Image.new("RGB", (output["width"], output["height"]))
     if screenshot.size[0] > screenshot.size[1]:
         
@@ -101,7 +121,11 @@ for index, image in enumerate(images):
         int((output["width"] - screenshot.size[0]) / 2), # These are the cordinates that place the image in the center of the output image
         int((output["height"] - screenshot.size[1]) / 2))
     )
-    with open(f"./output/test/labels/{index}.txt","w") as f:
+    folder = distribution[current_group]
+    
+    os.makedirs(f"./output/{folder}/images", exist_ok=True)
+    os.makedirs(f"./output/{folder}/labels", exist_ok=True)
+    with open(f"./output/{folder}/labels/{index}.txt","w") as f:
         classes = len(class_list)
         colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
              for i in range(classes)]
@@ -119,5 +143,20 @@ for index, image in enumerate(images):
     with open(f"./output/classes.txt","w") as f:
         for class_name in class_list:
             f.write(f"{class_name}\n")
-    output_image.save(f"./output/test/images/{index}.png")
+        
+    with open(f"./output/data.yaml","w") as f:
+        for dist in distribution:
+            f.write(f"{dist}: ../{dist}/images\n")
+        f.write("\n")
+        f.write(f"nc: {len(class_list)}\n")
+        f.write(f"names: {str(class_list)}")
     
+    output_image.save(f"./output/{folder}/images/{index}.png")
+    if index > percent * len(images)+ offsets:
+        offsets += int(index)
+        current_group += 1
+        percent = output["distribution"][distribution[current_group]]
+        if current_group > len(distribution):
+            break
+        
+        

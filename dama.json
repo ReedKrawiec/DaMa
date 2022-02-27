@@ -3,7 +3,7 @@
     {
       "name":"board",
       "min": 1,
-      "max": 3,
+      "max": 1,
       "probability": 1,
       "overlap": false,
       "offscreen": false,
@@ -40,8 +40,7 @@
     "height": 512,
     "distribution": {
       "train": 0.7,
-      "test": 0.2,
-      "validation": 0.1
+      "test": 0.3
     }
   }
 }
