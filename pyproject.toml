@@ -8,7 +8,7 @@ authors = ["Reed Krawiec <reedkrawiec@gmail.com>"]
 python = "^3.9"
 Pillow = "^9.0.1"
 fenToBoardImage = "^0.5"
-chess = "^1.8.0"
+chess = "1.8.0"
 
 [tool.poetry.dev-dependencies]
 

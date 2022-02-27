@@ -4,14 +4,27 @@ import random
 from random import randint, choice, randrange
 import chess.pgn
 
-PGN_LOCATION = "/common/home/rbk70/projects/DataMake/providers/board/lichess_db_standard_rated_2013-01.pgn"
+PGN_LOCATION = "/home/reed/Github/DataMake/providers/board/lichess_db_standard_rated_2013-01.pgn"
 SETS = [
-        "/common/home/rbk70/projects/DataMake/providers/board/pieces"
+        "/home/reed/Github/DataMake/providers/board/pieces",
+        "/home/reed/Github/DataMake/providers/board/pieces2",
+        "/home/reed/Github/DataMake/providers/board/pieces3",
+        "/home/reed/Github/DataMake/providers/board/pieces4",
        ]
-ARROW_SETS = ["/common/home/rbk70/projects/DataMake/providers/board/arrows1"]
+ARROW_SETS = [
+        "/home/reed/Github/DataMake/providers/board/arrows1",
+        "/home/reed/Github/DataMake/providers/board/arrows2",
+    ]
 COLORS = [
-    (("#ffffff","#333333"),("#E18B47","#F18B47")),
+    (("#eeeed2","#769656"),("#eeeed2","#baca2b")),
+    (("#656260","#312e2b"),("#397e97","#1f647d")),
+    (("#f0d8bf","#ba5546"),("#f4e8a9","#d9a76c")),
+    (("#f0d9b5","#b58863"),("#cdd26a","#aaa23a")),
+    (("#dee3e6","#8ca2ad"),("#c3d887","#92b166")),
+    (("#f1f6b2","#59935d"),("#8ed1bb","#349689"))
 ]
+
+classes = ["BOARD","p","r","n","b","q","k","P","R","N","B","Q","K"]
 
 pgn = open(PGN_LOCATION)
 
@@ -57,7 +70,7 @@ def randomArrowCordinates():
         elif arrow_type == 1:
             cord = randCord()
             while True:
-                length = randrange(0,8)
+                length = randrange(1,8)
                 direction = randrange(0,8)
                 if direction == 0:
                     offset = (0,length)
@@ -82,22 +95,38 @@ def randomArrowCordinates():
     return arrows
 
 def create():
-    size = randrange(200, 800)
+    flipped = choice([True, False])
+    size = randrange(800, 1000)
     theme = choice(COLORS)
-    
+    square_length = int(size / 8)
     game = chess.pgn.read_game(pgn)
     board = game.board()
     moves = list(game.mainline_moves())
-    target_move = randrange(0,len(moves))
+    min_move = 0
+    if len(moves) > 10:
+        min_move = 10
+    target_move = randrange(min_move,len(moves))
     for x in range(target_move):
         board.push(moves[x])
+    annotations = []
+    annotations.append([0,size/2,size/2,size,size])
+    for key, value in board.piece_map().items():
+        if not flipped:
+            key = 63 - key
+        x = key % 8
+        if not flipped:
+            x = 7 - x
+        y = int(key / 8)
+        sym = value.symbol()
+        class_index = classes.index(sym)
+        annotations.append([class_index,x*square_length + 1/2 * square_length,y*square_length + 1/2 * square_length,square_length * 0.8,square_length * 0.8])       
     arrows = fenToImage(
         fen=board.fen(),
-        squarelength=int(size / 8),
+        squarelength=square_length,
         pieceSet=loadPiecesFolder(choice(SETS)),
         darkColor=theme[0][1],
         lightColor=theme[0][0],
-        flipped=choice([True, False]),
+        flipped=flipped,
         lastMove={
             "before": (randrange(0,8), randrange(0,8)),
             "after": (randrange(0,8), randrange(0,8)),
@@ -107,4 +136,4 @@ def create():
         ArrowSet=loadArrows(choice(ARROW_SETS)),
         Arrows=randomArrowCordinates(),
     )
-    return {"image": arrows, "annotations": None}
+    return {"image": arrows, "labels": annotations}

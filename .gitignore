@@ -2,4 +2,4 @@ input
 output
 *.swp
 env
-__pycache__
+*.pyc

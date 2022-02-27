@@ -1,4 +1,12 @@
 [[package]]
+name = "chess"
+version = "1.8.0"
+description = "A chess library with move generation and validation, Polyglot opening book probing, PGN reading and writing, Gaviota tablebase probing, Syzygy tablebase probing, and XBoard/UCI engine communication."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "fentoboardimage"
 version = "0.5.2"
 description = "FenToBoardImage takes a Fen string representing a Chess position, and renders a PIL image of the resulting position."
@@ -25,9 +33,13 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "7de7392bd1049eb710ab858d9547112506dd87b3e6f76fef40cea71abbf11b6c"
+content-hash = "a0e81998880170f1e3757382fc0cd0fd68e2774d527a7e38869a5e4ae49c4996"
 
 [metadata.files]
+chess = [
+    {file = "chess-1.8.0-py3-none-any.whl", hash = "sha256:16fe017901201b93d73830c20ec7c36a329d2b22326f838d1bcfc55d3f63679c"},
+    {file = "chess-1.8.0.tar.gz", hash = "sha256:6fa56d88376247c8193e6ad03c10e2c0066f2a8199faf8a1587718238910c547"},
+]
 fentoboardimage = [
     {file = "fenToBoardImage-0.5.2-py3-none-any.whl", hash = "sha256:ca8b12c5c1fbce5fbb79a359fe937ec9d5bf31656e6aaee581e6234f8423f11b"},
     {file = "fenToBoardImage-0.5.2.tar.gz", hash = "sha256:b57504cba074d979953a61da3d6abaef72c2e6b790fe81228a84a227128b2f0b"},
