@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 import random
 import copy
 
-DRAW_ANNOTATIONS = True
+DRAW_LABELS = "--draw-labels" in sys.argv
 
 with open("dama.json", "r") as f:
     config = json.loads(f.read())
@@ -23,27 +23,58 @@ for provider_name in os.listdir("./providers"):
     provider_creators[provider_name] = provider.create
 
 images = os.listdir("./small_input")
+#checks if two rectangles intersect with format (x,y,width, height)
+# x,y,width,height
+def squareIntersects(one,two):
+    return False
+
+def generate(provider):
+    print("GENERATION")
+    name = provider["name"]
+    position = copy.deepcopy(provider["position"])
+    element = provider_creators[name]()
+    image = element["image"]
+    labels = element["labels"]
+    if not provider["offscreen"]:
+        width, height = element["image"].size
+        position["x"]["max"] = position["x"]["max"] - 1 * width
+        position["y"]["max"] = position["y"]["max"] - 1 * height
+    return image, labels, width, height, position
 
 for index, image in enumerate(images):
+    print("Working on: " + image)
     screenshot = Image.open(f"./small_input/{image}")
+    class_list = []
+    full_labels = []
+    placements = []
     for provider in config["providers"]:
-        name = provider["name"]
+        
         if random.random() < provider["probability"]:
+            print("random: " + str(random.random()) + " probability: " + str(provider["probability"]))
             for _ in range(provider["min"],provider["max"]):
-                position = copy.deepcopy(provider["position"])
-                element = provider_creators[name]()
-                image = element["image"]
-                labels = element["labels"]
-                if not provider["offscreen"]:
-                    width, height = element["image"].size
-                    position["x"]["max"] = position["x"]["max"] - 1 * width
-                    position["y"]["max"] = position["y"]["max"] - 1 * height
-                print(position)
-                x = random.randrange(position["x"]["min"],position["x"]["max"])
-                y = random.randrange(position["y"]["min"],position["y"]["max"])
+                image, labels, width, height, position = generate(provider)
+                counter = 0
+                if not provider["overlap"]:
+                    valid = False
+                    while not valid:
+                        x = random.randrange(position["x"]["min"],position["x"]["max"])
+                        y = random.randrange(position["y"]["min"],position["y"]["max"])
+                        valid = True
+                        for placement in placements:
+                            if squareIntersects((x,y,width,height),placement):
+                                valid = False
+                        counter += 1
+                        if counter > 100:
+                            image, labels, width, height, position = generate(provider)
+                        if counter > 200:
+                            print("emergency break")
+                            break
+                placements.append((x,y,width,height))
                 # Adjust labels to take into account position within image
-                labels = list(map(lambda label: (label[0],x + label[1], y + label[2], label[3], label[4]), labels))
+                labels = list(map(lambda label: (label[0] + len(class_list),x + label[1], y + label[2], label[3], label[4]), labels))
+                full_labels.extend(labels)
                 screenshot.paste(image,(int(x),int(y)))
+        class_list.extend(provider["classes"])
     output = config["output"]
     output_image = Image.new("RGB", (output["width"], output["height"]))
     if screenshot.size[0] > screenshot.size[1]:
@@ -60,8 +91,8 @@ for index, image in enumerate(images):
         # we resize the width to the output width, and the height is proportional
         screenshot = screenshot.resize((output["width"], int(screenshot.size[1] * ratio)))
         # adjust labels to account for the resize
-        labels = list(map(adjustlabel, labels))
-        print(str(labels) + " \n")
+        full_labels = list(map(adjustlabel, full_labels))
+        
     else:
         # We resize the size to the output height, and the width is proportional
         ratio = output["height"] / screenshot.size[1]
@@ -71,20 +102,22 @@ for index, image in enumerate(images):
         int((output["height"] - screenshot.size[1]) / 2))
     )
     with open(f"./output/test/labels/{index}.txt","w") as f:
-        classes = 20
+        classes = len(class_list)
         colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
              for i in range(classes)]
-        print(colors)
-        for label in labels:
+        for label in full_labels:
             f.write(f"{label[0]} {label[1]} {label[2]} {label[3]} {label[4]}\n")
-            if DRAW_ANNOTATIONS:
+            if DRAW_LABELS:
                 draw = ImageDraw.Draw(output_image)
-                cindex,x,y,width,height = label
-                x = int(x * output["width"])
-                y = int(y * output["height"])
+                cindex,_x,_y,width,height = label
+                _x = int(_x * output["width"])
+                _y = int(_y * output["height"])
+                
                 width = int(width * output["width"])
                 height = int(height * output["height"])
-                draw.rectangle([x - width/2,y - height/2,x + width/2,y + height/2], outline=colors[cindex])
-            
+                draw.rectangle([_x - width/2,_y - height/2,_x + width/2,_y + height/2], outline=colors[cindex])
+    with open(f"./output/classes.txt","w") as f:
+        for class_name in class_list:
+            f.write(f"{class_name}\n")
     output_image.save(f"./output/test/images/{index}.png")
     

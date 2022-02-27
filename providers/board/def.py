@@ -96,7 +96,7 @@ def randomArrowCordinates():
 
 def create():
     flipped = choice([True, False])
-    size = randrange(800, 1000)
+    size = randrange(400, 800)
     theme = choice(COLORS)
     square_length = int(size / 8)
     game = chess.pgn.read_game(pgn)
