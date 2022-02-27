@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/reedkrawiec/DaMa/main/docs/header.png" />
+  <img src="https://raw.githubusercontent.com/ReedKrawiec/DaMa/main/docs/header.png" />
 </div>
 
 # About
