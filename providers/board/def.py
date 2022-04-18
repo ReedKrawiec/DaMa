@@ -4,16 +4,16 @@ import random
 from random import randint, choice, randrange
 import chess.pgn
 
-PGN_LOCATION = "/home/reed/Github/DataMake/providers/board/lichess_db_standard_rated_2013-01.pgn"
+PGN_LOCATION = "/common/home/rbk70/projects/DaMa/providers/board/lichess_db_standard_rated_2013-01.pgn"
 SETS = [
-        "/home/reed/Github/DataMake/providers/board/pieces",
-        "/home/reed/Github/DataMake/providers/board/pieces2",
-        "/home/reed/Github/DataMake/providers/board/pieces3",
-        "/home/reed/Github/DataMake/providers/board/pieces4",
+        "/common/home/rbk70/projects/DaMa/providers/board/pieces",
+        "/common/home/rbk70/projects/DaMa/providers/board/pieces2",
+        "/common/home/rbk70/projects/DaMa/providers/board/pieces3",
+        "/common/home/rbk70/projects/DaMa/providers/board/pieces4",
        ]
 ARROW_SETS = [
-        "/home/reed/Github/DataMake/providers/board/arrows1",
-        "/home/reed/Github/DataMake/providers/board/arrows2",
+        "/common/home/rbk70/projects/DaMa/providers/board/arrows1",
+        "/common/home/rbk70/projects/DaMa/providers/board/arrows2",
     ]
 COLORS = [
     (("#eeeed2","#769656"),("#eeeed2","#baca2b")),
@@ -105,7 +105,9 @@ def create():
     min_move = 0
     if len(moves) > 10:
         min_move = 10
-    target_move = randrange(min_move,len(moves))
+    target_move = 0
+    if len(moves) > min_move:
+        target_move = randrange(min_move,len(moves))
     for x in range(target_move):
         board.push(moves[x])
     annotations = []
