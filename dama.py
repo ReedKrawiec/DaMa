@@ -12,8 +12,15 @@ PROCESSES = 8
 
 DRAW_LABELS = "--draw-labels" in sys.argv
 
-with open("dama.json", "r") as f:
+if "--config" in sys.argv:
+    config_name = sys.argv[sys.argv.index("--config") + 1]
+else:
+    config_name = "dama.json"
+
+with open(config_name, "r") as f:
     config = json.loads(f.read())
+
+output_path = config["output"]["path"]
 
 provider_creators = {}
 
@@ -126,7 +133,7 @@ def process(inp):
         )
         folder = distribution[current_group]
         
-        with open(f"./output/{folder}/labels/{int(index + i)}.txt","w") as f:
+        with open(f"{output_path}/{folder}/labels/{int(index + i)}.txt","w") as f:
             classes = len(class_list)
             colors = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
                 for i in range(classes)]
@@ -141,7 +148,7 @@ def process(inp):
                     width = int(width * output["width"])
                     height = int(height * output["height"])
                     draw.rectangle([_x - width/2,_y - height/2,_x + width/2,_y + height/2], outline=colors[cindex])
-        output_image.save(f"./output/{folder}/images/{int(index + i)}.png")    
+        output_image.save(f"{output_path}/{folder}/images/{int(index + i)}.png")    
         if index > percent * len(images)+ offsets:
             offsets += int(index)
             current_group += 1
@@ -151,16 +158,25 @@ def process(inp):
 if __name__ == "__main__":
     all_images = list(images)
     providers = config["providers"]
-    class_list = [y for x in config["providers"] for y in x["classes"]]
-    with open(f"./output/classes.txt","w") as f:
+    distributions = config["output"]["distribution"]
+    class_list = [y for x in providers for y in x["classes"]]
+    
+    for _distribution in distributions.keys():
+        os.makedirs(f"{output_path}/{_distribution}/images", exist_ok=True)
+        os.makedirs(f"{output_path}/{_distribution}/labels", exist_ok=True)
+
+    with open(f"{output_path}/classes.txt","w") as f:
             for class_name in class_list:
                 f.write(f"{class_name}\n")
             
-    with open(f"./output/data.yaml","w") as f:
-        for dist in distribution:
+    with open(f"{output_path}/data.yaml","w") as f:
+        for dist in _distribution:
             f.write(f"{dist}: ../{dist}/images\n")
         f.write("\n")
         f.write(f"nc: {len(class_list)}\n")
         f.write(f"names: {str(class_list)}")
+    
+    
+
     with Pool(PROCESSES) as p:
         p.map(process, [(i * len(all_images)/PROCESSES,all_images[i::PROCESSES]) for i in range(PROCESSES)])
