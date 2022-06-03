@@ -1,40 +1,28 @@
 {
   "providers": [
     {
-      "name":"board",
-      "min": 1,
-      "max": 3,
-      "probability": 1,
-      "overlap": false,
-      "offscreen": false,
-      "position": {
-        "x": {
-          "min": 0,
-          "max": 1920
+      "name":"example",
+      "min":1,
+      "max":60,
+      "probability":1,
+      "overlap":false,
+      "offscreen":false,
+      "position":{
+        "x":{
+          "min":0,
+          "max":2000
         },
-        "y": {
-          "min": 0,
-          "max": 1080
+        "y":{
+          "min":0,
+          "max":2000
         }
       },
       "classes":[
-        "BOARD",
-        "BLACK_PAWN",
-        "BLACK_ROOK",
-        "BLACK_KNIGHT",
-        "BLACK_BISHOP",
-        "BLACK_QUEEN",
-        "BLACK_KING",
-        "WHITE_PAWN",
-        "WHITE_ROOK",
-        "WHITE_KNIGHT",
-        "WHITE_BISHOP",
-        "WHITE_QUEEN",
-        "WHITE_KING"
+        "example_box"
       ]
     }
   ],
-  "input": "./input",
+  "input": "./small_input",
   "output": {
     "width": 512,
     "height": 512,
