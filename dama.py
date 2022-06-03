@@ -61,7 +61,6 @@ def generate(provider):
         position["x"]["max"] = position["x"]["max"] - 1 * width
         position["y"]["max"] = position["y"]["max"] - 1 * height
     return image, labels, width, height, position
-
 output = config["output"]
 distribution = list(output["distribution"].keys())
 
@@ -77,7 +76,6 @@ def process(inp):
         full_labels = []
         placements = []
         for provider in config["providers"]:
-            
             if random.random() < provider["probability"]:
                 for _ in range(provider["min"],provider["max"]):
                     image, labels, width, height, position = generate(provider)
@@ -104,7 +102,6 @@ def process(inp):
             class_list.extend(provider["classes"])
         output_image = Image.new("RGB", (output["width"], output["height"]))
         if screenshot.size[0] > screenshot.size[1]:
-            
             ratio = output["width"] / screenshot.size[0]
             gutter = (output["height"] - screenshot.size[1] * ratio) / 2
             def adjustlabel(label):
@@ -144,20 +141,7 @@ def process(inp):
                     width = int(width * output["width"])
                     height = int(height * output["height"])
                     draw.rectangle([_x - width/2,_y - height/2,_x + width/2,_y + height/2], outline=colors[cindex])
-        """
-        with open(f"./output/classes.txt","w") as f:
-            for class_name in class_list:
-                f.write(f"{class_name}\n")
-            
-        with open(f"./output/data.yaml","w") as f:
-            for dist in distribution:
-                f.write(f"{dist}: ../{dist}/images\n")
-            f.write("\n")
-            f.write(f"nc: {len(class_list)}\n")
-            f.write(f"names: {str(class_list)}")
-        """
-        output_image.save(f"./output/{folder}/images/{int(index + i)}.png")
-        
+        output_image.save(f"./output/{folder}/images/{int(index + i)}.png")    
         if index > percent * len(images)+ offsets:
             offsets += int(index)
             current_group += 1
@@ -166,5 +150,17 @@ def process(inp):
                 break
 if __name__ == "__main__":
     all_images = list(images)
+    providers = config["providers"]
+    class_list = [y for x in config["providers"] for y in x["classes"]]
+    with open(f"./output/classes.txt","w") as f:
+            for class_name in class_list:
+                f.write(f"{class_name}\n")
+            
+    with open(f"./output/data.yaml","w") as f:
+        for dist in distribution:
+            f.write(f"{dist}: ../{dist}/images\n")
+        f.write("\n")
+        f.write(f"nc: {len(class_list)}\n")
+        f.write(f"names: {str(class_list)}")
     with Pool(PROCESSES) as p:
         p.map(process, [(i * len(all_images)/PROCESSES,all_images[i::PROCESSES]) for i in range(PROCESSES)])
